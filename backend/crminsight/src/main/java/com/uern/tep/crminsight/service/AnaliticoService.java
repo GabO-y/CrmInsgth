@@ -12,16 +12,19 @@ import com.uern.tep.crminsight.model.dto.response.AnaliticoResponseDTO;
 import com.uern.tep.crminsight.model.enums.StatusVenda;
 import com.uern.tep.crminsight.repository.InteracaoRepository;
 import com.uern.tep.crminsight.repository.VendaRepository;
+import com.uern.tep.crminsight.repository.VendedorRepository;
 
 @Service
 public class AnaliticoService {
 
     private final VendaRepository vendaRepository;
     private final InteracaoRepository interacaoRepository;
+    private final VendedorRepository vendedorRepository;
 
-    public AnaliticoService(VendaRepository vendaRepository, InteracaoRepository interacaoRepository) {
+    public AnaliticoService(VendaRepository vendaRepository, InteracaoRepository interacaoRepository, VendedorRepository vendedorRepository) {
         this.vendaRepository = vendaRepository;
         this.interacaoRepository = interacaoRepository;
+        this.vendedorRepository = vendedorRepository;
     }
 
     public AnaliticoResponseDTO taxaConversao(UUID vendedorId) {
@@ -37,6 +40,9 @@ public class AnaliticoService {
     public AnaliticoResponseDTO ticketMedio30d(UUID clienteId) {
         var dataLimite = LocalDate.now().minusDays(30);
         var media = vendaRepository.avgValorByClienteSince(clienteId, dataLimite);
+        if (media == null) {
+            return new AnaliticoResponseDTO("ticket_medio_30d", BigDecimal.ZERO, "R$");
+        }
         return new AnaliticoResponseDTO("ticket_medio_30d", media, "R$");
     }
 
@@ -58,21 +64,29 @@ public class AnaliticoService {
         var totalInteracoes = interacaoRepository.findByVendedorId(vendedorId).size();
         var totalVendas = vendaRepository.countByVendedorIdAndStatus(vendedorId, StatusVenda.CONCLUIDA);
         var eficiencia = totalInteracoes > 0
-            ? BigDecimal.valueOf(totalVendas).divide(BigDecimal.valueOf(totalInteracoes), 4, RoundingMode.HALF_UP)
+            ? BigDecimal.valueOf(totalVendas).multiply(BigDecimal.valueOf(100))
+                .divide(BigDecimal.valueOf(totalInteracoes), 2, RoundingMode.HALF_UP)
             : BigDecimal.ZERO;
-        return new AnaliticoResponseDTO("eficiencia_vendedor", eficiencia, "vendas/interacao");
+        return new AnaliticoResponseDTO("eficiencia_vendedor", eficiencia, "%");
     }
 
     public AnaliticoResponseDTO performanceMeta(UUID vendedorId) {
+        var vendedor = vendedorRepository.findById(vendedorId)
+            .orElseThrow(() -> new RuntimeException("Vendedor não encontrado: " + vendedorId));
         var inicioMes = LocalDate.now().withDayOfMonth(1);
         var fimMes = LocalDate.now();
         var totalVendas = vendaRepository.sumValorByVendedorAndPeriod(vendedorId, inicioMes, fimMes);
-        return new AnaliticoResponseDTO("performance_meta", totalVendas, "R$");
+        if (totalVendas == null || vendedor.getMetaMensal().compareTo(BigDecimal.ZERO) <= 0) {
+            return new AnaliticoResponseDTO("performance_meta", BigDecimal.ZERO, "%");
+        }
+        var percentual = totalVendas.multiply(BigDecimal.valueOf(100))
+            .divide(vendedor.getMetaMensal(), 2, RoundingMode.HALF_UP);
+        return new AnaliticoResponseDTO("performance_meta", percentual, "%");
     }
 
     public AnaliticoResponseDTO especializacao(UUID vendedorId) {
         var total = vendaRepository.sumValorByVendedor(vendedorId);
-        if (total.compareTo(BigDecimal.ZERO) == 0) {
+        if (total == null || total.compareTo(BigDecimal.ZERO) == 0) {
             return new AnaliticoResponseDTO("especializacao", BigDecimal.ZERO, "nenhum");
         }
         var porSegmento = vendaRepository.sumValorByVendedorGroupBySegmento(vendedorId);
@@ -80,7 +94,7 @@ public class AnaliticoService {
         BigDecimal maiorValor = BigDecimal.ZERO;
         for (var row : porSegmento) {
             var valor = (BigDecimal) row[1];
-            if (valor.compareTo(maiorValor) > 0) {
+            if (valor != null && valor.compareTo(maiorValor) > 0) {
                 maiorValor = valor;
                 maiorSegmento = (String) row[0];
             }

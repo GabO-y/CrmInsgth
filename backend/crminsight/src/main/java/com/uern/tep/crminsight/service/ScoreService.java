@@ -36,7 +36,7 @@ public class ScoreService {
         int frequenciaScore = Math.min(totalCompras * 10, 30);
 
         int ticketScore = 0;
-        if (totalVendas.compareTo(BigDecimal.ZERO) > 0 && totalCompras > 0) {
+        if (totalVendas != null && totalVendas.compareTo(BigDecimal.ZERO) > 0 && totalCompras > 0) {
             var ticketMedio = totalVendas.divide(BigDecimal.valueOf(totalCompras), RoundingMode.HALF_UP);
             if (ticketMedio.compareTo(new BigDecimal("10000")) >= 0) ticketScore = 40;
             else if (ticketMedio.compareTo(new BigDecimal("5000")) >= 0) ticketScore = 30;
