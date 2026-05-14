@@ -8,29 +8,42 @@
 │   ├── pom.xml
 │   └── src/main/java/com/uern/tep/crminsight/
 │       ├── CrminsightApplication.java    # entrypoint
+│       ├── config/
+│       │   ├── SecurityConfig.java       # JWT stateless, CORS, rotas públicas
+│       │   ├── JwtAuthenticationFilter.java
+│       │   ├── PasswordEncoderConfig.java
+│       │   └── DataInitializer.java      # seed admin:admin123
 │       ├── controller/
-│       │   ├── ClienteController.java    # CRUD /api/clientes
-│       │   ├── VendedorController.java   # CRUD /api/vendedores
-│       │   ├── VendaController.java      # CRUD /api/vendas
-│       │   ├── InteracaoController.java  # CRUD /api/interacoes
-│       │   └── AnaliticoController.java  # GET /api/analitico/*
+│       │   ├── AuthController.java       # POST /api/auth/login
+│       │   ├── ClienteController.java
+│       │   ├── VendedorController.java
+│       │   ├── VendaController.java
+│       │   ├── InteracaoController.java
+│       │   ├── AnaliticoController.java
+│       │   ├── MeuAnaliticoController.java  # GET /api/analitico/meu/* (VENDEDOR)
+│       │   └── UsuarioController.java    # CRUD /api/usuarios (ADMIN)
 │       ├── model/
 │       │   ├── entity/
 │       │   │   ├── Cliente.java
 │       │   │   ├── Vendedor.java
 │       │   │   ├── Venda.java
-│       │   │   └── Interacao.java
+│       │   │   ├── Interacao.java
+│       │   │   └── Usuario.java   # JWT auth
 │       │   ├── dto/request/  (records com @Valid)
 │       │   ├── dto/response/ (records)
-│       │   └── enums/ (RankVendedor, StatusVenda, CanalInteracao)
+│       │   └── enums/ (RankVendedor, StatusVenda, CanalInteracao, RoleUsuario)
+│       ├── handler/
+│       │   └── GlobalExceptionHandler.java  # JSON padronizado pra erros
 │       ├── repository/ (Spring Data JPA)
 │       └── service/
 │           ├── ClienteService.java
 │           ├── VendedorService.java
 │           ├── VendaService.java
 │           ├── InteracaoService.java
-│           ├── ScoreService.java      # score automático do cliente
-│           └── AnaliticoService.java  # 6 métricas calculadas
+│           ├── ScoreService.java
+│           ├── AnaliticoService.java
+│           ├── UsuarioService.java
+│           └── JwtService.java
 └── frontend/crminsight/   # React 19 + TypeScript 6 + Vite 8
     ├── package.json
     ├── vite.config.ts

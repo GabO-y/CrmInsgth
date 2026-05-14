@@ -3,6 +3,7 @@ package com.uern.tep.crminsight.controller;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import com.uern.tep.crminsight.service.AnaliticoService;
 
 @RestController
 @RequestMapping("/api/analitico")
+@PreAuthorize("hasRole('ADMIN')")
 public class AnaliticoController {
 
     private final AnaliticoService analiticoService;

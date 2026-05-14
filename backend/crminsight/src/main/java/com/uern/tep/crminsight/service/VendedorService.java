@@ -50,6 +50,9 @@ public class VendedorService {
     public VendedorResponseDTO atualizar(UUID id, VendedorRequestDTO dto) {
         var vendedor = vendedorRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor não encontrado: " + id));
+        if (!vendedor.getMatricula().equals(dto.matricula()) && vendedorRepository.findByMatricula(dto.matricula()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Matrícula já cadastrada: " + dto.matricula());
+        }
         vendedor.setNome(dto.nome());
         vendedor.setMatricula(dto.matricula());
         vendedor.setDataAdmissao(dto.dataAdmissao());

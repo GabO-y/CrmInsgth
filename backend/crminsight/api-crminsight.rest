@@ -1,17 +1,70 @@
 @baseUrl = http://localhost:8080
+@authUrl = {{baseUrl}}/api/auth
 @clientesUrl = {{baseUrl}}/api/clientes
 @vendedoresUrl = {{baseUrl}}/api/vendedores
 @vendasUrl = {{baseUrl}}/api/vendas
 @interacoesUrl = {{baseUrl}}/api/interacoes
 @analiticoUrl = {{baseUrl}}/api/analitico
+@usuariosUrl = {{baseUrl}}/api/usuarios
+@token = TOKEN
 
-@clienteId = 7dc126f0-3726-4301-85ef-f815174649da
-@vendedorId = 58c08f11-2fe8-4fb6-ad0b-f9c32045c5f4
-@vendaId = 709c09a0-69d9-46d7-819f-8f8f08e94e10
-@interacaoId = cec5b665-732b-42f4-86a8-f0ed243296cc
-### Criar cliente
+@clienteId = 1
+@vendedorId = 1
+@vendaId = 1
+@interacaoId = 1
+
+### Login (admin)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin123"
+}
+
+### Criar vendedor (ADMIN)
+POST {{vendedoresUrl}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "nome": "Ana Oliveira",
+    "matricula": "VEN001",
+    "dataAdmissao": "2024-01-15",
+    "metaMensal": 100000.00,
+    "comissaoBase": 5.0,
+    "rank": "OURO"
+}
+
+### Criar usuario vendedor (ADMIN)
+POST {{usuariosUrl}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "username": "ana.oliveira",
+    "password": "123456",
+    "role": "VENDEDOR",
+    "vendedorId": "{{vendedorId}}"
+}
+
+### Listar usuarios (ADMIN)
+GET {{usuariosUrl}}
+Authorization: Bearer {{token}}
+
+### Login (vendedor)
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+    "username": "ana.oliveira",
+    "password": "123456"
+}
+
+### Criar cliente (ADMIN)
 POST {{clientesUrl}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "nome": "João Silva",
@@ -20,47 +73,41 @@ Content-Type: application/json
 
 ### Listar clientes
 GET {{clientesUrl}}
+Authorization: Bearer {{token}}
 
 ### Buscar cliente por id
 GET {{clientesUrl}}/{{clienteId}}
+Authorization: Bearer {{token}}
 
-### Atualizar cliente
+### Atualizar cliente (ADMIN)
 PUT {{clientesUrl}}/{{clienteId}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "nome": "João Silva Atualizado",
     "segmento": "Pequena empresa"
 }
 
-### Deletar cliente
+### Deletar cliente (ADMIN)
 DELETE {{clientesUrl}}/{{clienteId}}
+Authorization: Bearer {{token}}
 
-### Criar vendedor
-POST {{vendedoresUrl}}
-Content-Type: application/json
-
-{
-    "nome": "Maria Oliveira",
-    "matricula": "VEN001",
-    "dataAdmissao": "2024-01-15",
-    "metaMensal": 100000.00,
-    "comissaoBase": 5.0,
-    "rank": "OURO"
-}
-
-### Listar vendedores
+### Listar vendedores (ADMIN)
 GET {{vendedoresUrl}}
+Authorization: Bearer {{token}}
 
-### Buscar vendedor por id
+### Buscar vendedor por id (ADMIN)
 GET {{vendedoresUrl}}/{{vendedorId}}
+Authorization: Bearer {{token}}
 
-### Atualizar vendedor
+### Atualizar vendedor (ADMIN)
 PUT {{vendedoresUrl}}/{{vendedorId}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
-    "nome": "Maria Oliveira Atualizada",
+    "nome": "Ana Oliveira Atualizada",
     "matricula": "VEN001",
     "dataAdmissao": "2024-01-15",
     "metaMensal": 120000.00,
@@ -68,12 +115,14 @@ Content-Type: application/json
     "rank": "OURO"
 }
 
-### Deletar vendedor
+### Deletar vendedor (ADMIN)
 DELETE {{vendedoresUrl}}/{{vendedorId}}
+Authorization: Bearer {{token}}
 
 ### Criar venda
 POST {{vendasUrl}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "data": "2026-05-13",
@@ -86,22 +135,28 @@ Content-Type: application/json
 
 ### Listar vendas
 GET {{vendasUrl}}
+Authorization: Bearer {{token}}
 
 ### Listar vendas por cliente
 GET {{vendasUrl}}?clienteId={{clienteId}}
+Authorization: Bearer {{token}}
 
 ### Listar vendas por vendedor
 GET {{vendasUrl}}?vendedorId={{vendedorId}}
+Authorization: Bearer {{token}}
 
 ### Buscar venda por id
 GET {{vendasUrl}}/{{vendaId}}
+Authorization: Bearer {{token}}
 
-### Deletar venda
+### Deletar venda (ADMIN)
 DELETE {{vendasUrl}}/{{vendaId}}
+Authorization: Bearer {{token}}
 
 ### Criar interacao
 POST {{interacoesUrl}}
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "dataHora": "2026-05-13T10:30:00",
@@ -114,33 +169,60 @@ Content-Type: application/json
 
 ### Listar interacoes
 GET {{interacoesUrl}}
+Authorization: Bearer {{token}}
 
 ### Listar interacoes por cliente
 GET {{interacoesUrl}}?clienteId={{clienteId}}
+Authorization: Bearer {{token}}
 
 ### Listar interacoes por vendedor
 GET {{interacoesUrl}}?vendedorId={{vendedorId}}
+Authorization: Bearer {{token}}
 
 ### Buscar interacao por id
 GET {{interacoesUrl}}/{{interacaoId}}
+Authorization: Bearer {{token}}
 
-### Deletar interacao
+### Deletar interacao (ADMIN)
 DELETE {{interacoesUrl}}/{{interacaoId}}
+Authorization: Bearer {{token}}
 
-### ANALÍTICO - Taxa de conversao do vendedor
+### ANALÍTICO - Taxa de conversao (ADMIN)
 GET {{analiticoUrl}}/taxa-conversao?vendedorId={{vendedorId}}
+Authorization: Bearer {{token}}
 
-### ANALÍTICO - Ticket medio 30 dias do cliente
+### ANALÍTICO - Ticket medio 30 dias (ADMIN)
 GET {{analiticoUrl}}/ticket-medio-30d?clienteId={{clienteId}}
+Authorization: Bearer {{token}}
 
-### ANALÍTICO - Probabilidade de churn do cliente
+### ANALÍTICO - Probabilidade de churn (ADMIN)
 GET {{analiticoUrl}}/churn?clienteId={{clienteId}}
+Authorization: Bearer {{token}}
 
-### ANALÍTICO - Eficiencia do vendedor
+### ANALÍTICO - Eficiencia do vendedor (ADMIN)
 GET {{analiticoUrl}}/eficiencia-vendedor?vendedorId={{vendedorId}}
+Authorization: Bearer {{token}}
 
-### ANALÍTICO - Performance vs meta do vendedor
+### ANALÍTICO - Performance vs meta (ADMIN)
 GET {{analiticoUrl}}/performance-meta?vendedorId={{vendedorId}}
+Authorization: Bearer {{token}}
 
-### ANALÍTICO - Especializacao do vendedor por segmento
+### ANALÍTICO - Especializacao por segmento (ADMIN)
 GET {{analiticoUrl}}/especializacao?vendedorId={{vendedorId}}
+Authorization: Bearer {{token}}
+
+### MEU ANALÍTICO - Taxa de conversao (VENDEDOR)
+GET {{analiticoUrl}}/meu/taxa-conversao
+Authorization: Bearer {{token}}
+
+### MEU ANALÍTICO - Eficiencia (VENDEDOR)
+GET {{analiticoUrl}}/meu/eficiencia-vendedor
+Authorization: Bearer {{token}}
+
+### MEU ANALÍTICO - Performance vs meta (VENDEDOR)
+GET {{analiticoUrl}}/meu/performance-meta
+Authorization: Bearer {{token}}
+
+### MEU ANALÍTICO - Especializacao (VENDEDOR)
+GET {{analiticoUrl}}/meu/especializacao
+Authorization: Bearer {{token}}

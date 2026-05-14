@@ -58,6 +58,12 @@ public class VendaService {
 
     @Transactional
     public VendaResponseDTO criar(VendaRequestDTO dto) {
+        if (dto.clienteId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "clienteId é obrigatório");
+        }
+        if (dto.vendedorId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "vendedorId é obrigatório");
+        }
         var cliente = clienteRepository.findById(dto.clienteId())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado: " + dto.clienteId()));
         var vendedor = vendedorRepository.findById(dto.vendedorId())
