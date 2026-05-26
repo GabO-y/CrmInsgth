@@ -4,12 +4,22 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
 import com.uern.tep.crminsight.model.dto.response.AnaliticoResponseDTO;
+import com.uern.tep.crminsight.model.dto.response.ResumoGeralResponseDTO;
+import com.uern.tep.crminsight.model.dto.response.ResumoGeralResponseDTO.InteracaoResumida;
+import com.uern.tep.crminsight.model.dto.response.ResumoGeralResponseDTO.VendaPorMes;
+import com.uern.tep.crminsight.model.dto.response.ResumoGeralResponseDTO.VendaPorVendedor;
+import com.uern.tep.crminsight.model.dto.response.ResumoGeralResponseDTO.VendaResumida;
 import com.uern.tep.crminsight.model.enums.StatusVenda;
+import com.uern.tep.crminsight.repository.ClienteRepository;
 import com.uern.tep.crminsight.repository.InteracaoRepository;
 import com.uern.tep.crminsight.repository.VendaRepository;
 import com.uern.tep.crminsight.repository.VendedorRepository;
@@ -20,11 +30,13 @@ public class AnaliticoService {
     private final VendaRepository vendaRepository;
     private final InteracaoRepository interacaoRepository;
     private final VendedorRepository vendedorRepository;
+    private final ClienteRepository clienteRepository;
 
-    public AnaliticoService(VendaRepository vendaRepository, InteracaoRepository interacaoRepository, VendedorRepository vendedorRepository) {
+    public AnaliticoService(VendaRepository vendaRepository, InteracaoRepository interacaoRepository, VendedorRepository vendedorRepository, ClienteRepository clienteRepository) {
         this.vendaRepository = vendaRepository;
         this.interacaoRepository = interacaoRepository;
         this.vendedorRepository = vendedorRepository;
+        this.clienteRepository = clienteRepository;
     }
 
     public AnaliticoResponseDTO taxaConversao(UUID vendedorId) {
@@ -100,5 +112,63 @@ public class AnaliticoService {
             }
         }
         return new AnaliticoResponseDTO("especializacao", maiorSegmento.isEmpty() ? BigDecimal.ZERO : BigDecimal.ONE, maiorSegmento);
+    }
+
+    public ResumoGeralResponseDTO resumoGeral() {
+        var totalClientes = clienteRepository.count();
+        var totalVendedores = vendedorRepository.count();
+        var faturamentoTotal = vendaRepository.sumValorGlobal();
+        if (faturamentoTotal == null) faturamentoTotal = BigDecimal.ZERO;
+
+        var inicioMes = LocalDate.now().withDayOfMonth(1);
+        var fimMes = LocalDate.now();
+        var faturamentoMes = vendaRepository.sumValorByPeriod(inicioMes, fimMes);
+        if (faturamentoMes == null) faturamentoMes = BigDecimal.ZERO;
+
+        var totalVendas = vendaRepository.count();
+        var totalVendasConcluidas = 0L;
+        var vendasPorStatus = new LinkedHashMap<String, Long>();
+        for (var row : vendaRepository.countByStatus()) {
+            var status = ((StatusVenda) row[0]).name();
+            var count = (Long) row[1];
+            vendasPorStatus.put(status, count);
+            if (status.equals("CONCLUIDA")) totalVendasConcluidas += count;
+        }
+
+        var totalInteracoes = interacaoRepository.count();
+
+        var vendasPorMes = new ArrayList<VendaPorMes>();
+        for (var row : vendaRepository.sumValorByMonth()) {
+            var ano = (Integer) row[0];
+            var mes = (Integer) row[1];
+            var valor = (BigDecimal) row[2];
+            var key = String.format("%04d-%02d", ano, mes);
+            vendasPorMes.add(new VendaPorMes(key, valor));
+        }
+
+        var topVendedores = new ArrayList<VendaPorVendedor>();
+        for (var row : vendaRepository.sumValorByVendedor()) {
+            var nome = (String) row[0];
+            var total = (BigDecimal) row[1];
+            topVendedores.add(new VendaPorVendedor(nome, total));
+        }
+
+        var ultimasVendas = new ArrayList<VendaResumida>();
+        for (var v : vendaRepository.findTop5ByOrderByDataDesc()) {
+            ultimasVendas.add(new VendaResumida(v.getId(), v.getData(), v.getCliente().getNome(), v.getVendedor().getNome(), v.getValor(), v.getStatus()));
+        }
+
+        var ultimasInteracoes = new ArrayList<InteracaoResumida>();
+        for (var i : interacaoRepository.findTop5ByOrderByDataHoraDesc()) {
+            ultimasInteracoes.add(new InteracaoResumida(i.getId(), i.getDataHora(), i.getCliente().getNome(), i.getCanal().name(), i.getDuracao()));
+        }
+
+        return new ResumoGeralResponseDTO(
+            totalClientes, totalVendedores,
+            faturamentoTotal, faturamentoMes,
+            totalVendasConcluidas, totalInteracoes, totalVendas,
+            vendasPorMes, topVendedores, vendasPorStatus,
+            ultimasVendas, ultimasInteracoes
+        );
     }
 }

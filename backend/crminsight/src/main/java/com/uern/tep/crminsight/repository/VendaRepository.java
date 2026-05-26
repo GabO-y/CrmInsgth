@@ -35,6 +35,12 @@ public interface VendaRepository extends JpaRepository<Venda, UUID> {
     @Query("SELECT SUM(v.valor) FROM Venda v WHERE v.cliente.id = :clienteId AND v.status = 'CONCLUIDA'")
     BigDecimal sumValorByCliente(@Param("clienteId") UUID clienteId);
 
+    @Query("SELECT SUM(v.valor) FROM Venda v WHERE v.status = 'CONCLUIDA'")
+    BigDecimal sumValorGlobal();
+
+    @Query("SELECT SUM(v.valor) FROM Venda v WHERE v.status = 'CONCLUIDA' AND v.data BETWEEN :inicio AND :fim")
+    BigDecimal sumValorByPeriod(@Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
+
     @Query("SELECT SUM(v.valor) FROM Venda v WHERE v.vendedor.id = :vendedorId AND v.status = 'CONCLUIDA'")
     BigDecimal sumValorByVendedor(@Param("vendedorId") UUID vendedorId);
 
@@ -46,4 +52,15 @@ public interface VendaRepository extends JpaRepository<Venda, UUID> {
 
     @Query("SELECT COUNT(v) FROM Venda v WHERE v.cliente.id = :clienteId AND v.status = 'CONCLUIDA'")
     int countConcluidasByCliente(@Param("clienteId") UUID clienteId);
+
+    @Query("SELECT v.status, COUNT(v) FROM Venda v GROUP BY v.status")
+    List<Object[]> countByStatus();
+
+    @Query("SELECT YEAR(v.data), MONTH(v.data), SUM(v.valor) FROM Venda v WHERE v.status = 'CONCLUIDA' GROUP BY YEAR(v.data), MONTH(v.data) ORDER BY YEAR(v.data), MONTH(v.data)")
+    List<Object[]> sumValorByMonth();
+
+    @Query("SELECT v.vendedor.nome, SUM(v.valor) FROM Venda v WHERE v.status = 'CONCLUIDA' GROUP BY v.vendedor.nome ORDER BY SUM(v.valor) DESC")
+    List<Object[]> sumValorByVendedor();
+
+    List<Venda> findTop5ByOrderByDataDesc();
 }

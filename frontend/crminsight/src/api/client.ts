@@ -51,7 +51,7 @@ async function request<T>(path: string, config: RequestConfig = {}): Promise<T> 
       // ignore JSON parse error for non-JSON responses
     }
 
-    if (response.status === 401) {
+    if (response.status === 401 && !path.startsWith('/auth/')) {
       localStorage.removeItem('token')
       localStorage.removeItem('usuario')
       window.location.href = '/login'

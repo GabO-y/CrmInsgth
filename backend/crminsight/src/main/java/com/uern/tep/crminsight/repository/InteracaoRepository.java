@@ -12,4 +12,6 @@ public interface InteracaoRepository extends JpaRepository<Interacao, UUID> {
     List<Interacao> findByClienteId(UUID clienteId);
 
     List<Interacao> findByVendedorId(UUID vendedorId);
+
+    List<Interacao> findTop5ByOrderByDataHoraDesc();
 }

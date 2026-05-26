@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uern.tep.crminsight.model.dto.response.AnaliticoResponseDTO;
+import com.uern.tep.crminsight.model.dto.response.ResumoGeralResponseDTO;
 import com.uern.tep.crminsight.service.AnaliticoService;
 
 @RestController
@@ -51,5 +52,10 @@ public class AnaliticoController {
     @GetMapping("/especializacao")
     public ResponseEntity<AnaliticoResponseDTO> especializacao(@RequestParam UUID vendedorId) {
         return ResponseEntity.ok(analiticoService.especializacao(vendedorId));
+    }
+
+    @GetMapping("/resumo-geral")
+    public ResponseEntity<ResumoGeralResponseDTO> resumoGeral() {
+        return ResponseEntity.ok(analiticoService.resumoGeral());
     }
 }

@@ -43,11 +43,11 @@ function App() {
               }
             >
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/clientes" element={<ClientesListagem />} />
-              <Route path="/clientes/novo" element={<ClienteFormulario />} />
-              <Route path="/clientes/:id/editar" element={<ClienteFormulario />} />
-              <Route path="/vendedores" element={<VendedoresListagem />} />
-              <Route path="/vendedores/:id/editar" element={<VendedorFormulario />} />
+              <Route path="/clientes" element={<PrivateRoute roles={['ADMIN']}><ClientesListagem /></PrivateRoute>} />
+              <Route path="/clientes/novo" element={<PrivateRoute roles={['ADMIN']}><ClienteFormulario /></PrivateRoute>} />
+              <Route path="/clientes/:id/editar" element={<PrivateRoute roles={['ADMIN']}><ClienteFormulario /></PrivateRoute>} />
+              <Route path="/vendedores" element={<PrivateRoute roles={['ADMIN']}><VendedoresListagem /></PrivateRoute>} />
+              <Route path="/vendedores/:id/editar" element={<PrivateRoute roles={['ADMIN']}><VendedorFormulario /></PrivateRoute>} />
               <Route path="/vendas" element={<VendasListagem />} />
               <Route path="/vendas/novo" element={<VendaFormulario />} />
               <Route path="/interacoes" element={<InteracoesListagem />} />

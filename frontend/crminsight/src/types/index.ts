@@ -176,6 +176,34 @@ export interface InteracaoFormData {
   vendedorId: string
 }
 
+export interface ResumoGeral {
+  totalClientes: number
+  totalVendedores: number
+  faturamentoTotal: number
+  faturamentoMes: number
+  totalVendasConcluidas: number
+  totalInteracoes: number
+  totalVendas: number
+  vendasPorMes: { mes: string; valor: number }[]
+  topVendedores: { nome: string; total: number }[]
+  vendasPorStatus: Record<string, number>
+  ultimasVendas: {
+    id: string
+    data: string
+    clienteNome: string
+    vendedorNome: string
+    valor: number
+    status: string
+  }[]
+  ultimasInteracoes: {
+    id: string
+    dataHora: string
+    clienteNome: string
+    canal: string
+    duracao: number
+  }[]
+}
+
 export interface UsuarioFormData {
   username: string
   password: string

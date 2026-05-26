@@ -23,7 +23,6 @@ const adminLinks = [
 
 const vendedorLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/clientes', label: 'Clientes', icon: Users },
   { to: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { to: '/interacoes', label: 'Interações', icon: Phone },
   { to: '/analitico/meu', label: 'Meu Desempenho', icon: BarChart3 },
