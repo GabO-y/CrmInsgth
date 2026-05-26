@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Plus, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { listarVendedores, deletarVendedor } from '../../api/vendedores'
 import DataTable from '../../components/ui/DataTable'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
@@ -68,13 +68,6 @@ export default function VendedoresListagem() {
           <h1 className="text-2xl font-bold text-slate-900">Vendedores</h1>
           <p className="text-slate-500 mt-1">{vendedores?.length ?? 0} vendedor(es) cadastrado(s)</p>
         </div>
-        <Link
-          to="/vendedores/novo"
-          className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-medium"
-        >
-          <Plus size={18} />
-          Novo Vendedor
-        </Link>
       </div>
 
       <DataTable

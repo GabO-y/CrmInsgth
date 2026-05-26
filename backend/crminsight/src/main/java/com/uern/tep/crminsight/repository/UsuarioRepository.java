@@ -9,4 +9,5 @@ import com.uern.tep.crminsight.model.entity.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
     Optional<Usuario> findByUsername(String username);
+    Optional<Usuario> findByVendedorId(UUID vendedorId);
 }

@@ -35,7 +35,7 @@ export default function Sidebar() {
   const links = usuario?.role === 'ADMIN' ? adminLinks : vendedorLinks
 
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col min-h-screen">
+    <aside className="w-64 bg-slate-900 text-white flex flex-col h-screen">
       <div className="p-6 border-b border-slate-700">
         <h1 className="text-xl font-bold tracking-tight">CRM Insight</h1>
         <p className="text-sm text-slate-400 mt-1 capitalize">{usuario?.role.toLowerCase()}</p>

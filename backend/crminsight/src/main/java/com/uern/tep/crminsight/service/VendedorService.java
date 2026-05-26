@@ -10,15 +10,18 @@ import org.springframework.web.server.ResponseStatusException;
 import com.uern.tep.crminsight.model.dto.request.VendedorRequestDTO;
 import com.uern.tep.crminsight.model.dto.response.VendedorResponseDTO;
 import com.uern.tep.crminsight.model.entity.Vendedor;
+import com.uern.tep.crminsight.repository.UsuarioRepository;
 import com.uern.tep.crminsight.repository.VendedorRepository;
 
 @Service
 public class VendedorService {
 
     private final VendedorRepository vendedorRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public VendedorService(VendedorRepository vendedorRepository) {
+    public VendedorService(VendedorRepository vendedorRepository, UsuarioRepository usuarioRepository) {
         this.vendedorRepository = vendedorRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public List<VendedorResponseDTO> listarTodos() {
@@ -66,6 +69,7 @@ public class VendedorService {
     public void deletar(UUID id) {
         var vendedor = vendedorRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor não encontrado: " + id));
+        usuarioRepository.findByVendedorId(id).ifPresent(usuarioRepository::delete);
         vendedorRepository.delete(vendedor);
     }
 

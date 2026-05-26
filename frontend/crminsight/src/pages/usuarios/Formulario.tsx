@@ -1,45 +1,44 @@
 import { useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft, Save } from 'lucide-react'
 import { criarUsuario } from '../../api/usuarios'
-import { listarVendedores } from '../../api/vendedores'
-import type { UsuarioFormData, RoleUsuario } from '../../types'
+import type { UsuarioFormData, RankVendedor } from '../../types'
 
 const schema = z.object({
   username: z.string().min(3, 'Mínimo 3 caracteres'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   role: z.enum(['ADMIN', 'VENDEDOR'] as const),
-  vendedorId: z.string().nullable(),
+  nome: z.string().optional(),
+  matricula: z.string().optional(),
+  dataAdmissao: z.string().optional(),
+  metaMensal: z.number().optional(),
+  comissaoBase: z.number().optional(),
+  rank: z.string().optional(),
 })
 
-const roles: RoleUsuario[] = ['ADMIN', 'VENDEDOR']
+const ranks: RankVendedor[] = ['OURO', 'PRATA', 'BRONZE', 'TREINAMENTO']
 
 export default function UsuarioFormulario() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
-  const { data: vendedores } = useQuery({
-    queryKey: ['vendedores'],
-    queryFn: listarVendedores,
-  })
-
   const {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<UsuarioFormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      role: 'VENDEDOR',
-      vendedorId: null,
+      role: 'ADMIN',
     },
   })
 
-  const roleWatcher = watch('role')
+  const role = watch('role')
 
   const mutation = useMutation({
     mutationFn: criarUsuario,
@@ -50,10 +49,17 @@ export default function UsuarioFormulario() {
   })
 
   async function onSubmit(data: UsuarioFormData) {
-    await mutation.mutateAsync({
-      ...data,
-      vendedorId: data.role === 'VENDEDOR' ? data.vendedorId : null,
-    })
+    if (data.role === 'VENDEDOR') {
+      let hasError = false
+      if (!data.nome) { setError('nome', { message: 'Nome é obrigatório' }); hasError = true }
+      if (!data.matricula) { setError('matricula', { message: 'Matrícula é obrigatória' }); hasError = true }
+      if (!data.dataAdmissao) { setError('dataAdmissao', { message: 'Data é obrigatória' }); hasError = true }
+      if (!data.metaMensal || data.metaMensal <= 0) { setError('metaMensal', { message: 'Deve ser positivo' }); hasError = true }
+      if (data.comissaoBase === undefined || data.comissaoBase < 0) { setError('comissaoBase', { message: 'Deve ser >= 0' }); hasError = true }
+      if (!data.rank) { setError('rank', { message: 'Rank é obrigatório' }); hasError = true }
+      if (hasError) return
+    }
+    await mutation.mutateAsync(data)
   }
 
   return (
@@ -82,25 +88,57 @@ export default function UsuarioFormulario() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
           <select {...register('role')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white">
-            {roles.map((r) => <option key={r} value={r}>{r}</option>)}
+            <option value="ADMIN">Administrador</option>
+            <option value="VENDEDOR">Vendedor</option>
           </select>
           {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>}
         </div>
 
-        {roleWatcher === 'VENDEDOR' && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Vendedor Vinculado</label>
-            <select
-              {...register('vendedorId')}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white"
-            >
-              <option value="">Selecione...</option>
-              {vendedores?.map((v) => <option key={v.id} value={v.id}>{v.nome} - {v.matricula}</option>)}
-            </select>
-            {errors.vendedorId && <p className="text-red-500 text-xs mt-1">{errors.vendedorId.message}</p>}
-          </div>
+        {role === 'VENDEDOR' && (
+          <>
+            <hr className="border-slate-200" />
+            <p className="text-sm font-medium text-slate-700">Dados do Vendedor</p>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome</label>
+              <input {...register('nome')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Matrícula</label>
+              <input {...register('matricula')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.matricula && <p className="text-red-500 text-xs mt-1">{errors.matricula.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Data de Admissão</label>
+              <input type="date" {...register('dataAdmissao')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.dataAdmissao && <p className="text-red-500 text-xs mt-1">{errors.dataAdmissao.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Meta Mensal (R$)</label>
+              <input type="number" step="0.01" {...register('metaMensal', { valueAsNumber: true })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.metaMensal && <p className="text-red-500 text-xs mt-1">{errors.metaMensal.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Comissão Base (R$)</label>
+              <input type="number" step="0.01" {...register('comissaoBase', { valueAsNumber: true })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.comissaoBase && <p className="text-red-500 text-xs mt-1">{errors.comissaoBase.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Rank</label>
+              <select {...register('rank')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white">
+                {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+              {errors.rank && <p className="text-red-500 text-xs mt-1">{errors.rank.message}</p>}
+            </div>
+          </>
         )}
 
         <div className="flex gap-3 pt-2">

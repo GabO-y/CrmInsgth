@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.uern.tep.crminsight.model.dto.request.UsuarioRequestDTO;
 import com.uern.tep.crminsight.model.dto.response.UsuarioResponseDTO;
 import com.uern.tep.crminsight.model.entity.Usuario;
+import com.uern.tep.crminsight.model.entity.Vendedor;
 import com.uern.tep.crminsight.model.enums.RoleUsuario;
 import com.uern.tep.crminsight.repository.UsuarioRepository;
 import com.uern.tep.crminsight.repository.VendedorRepository;
@@ -58,21 +59,53 @@ public class UsuarioService implements UserDetailsService {
         if (usuarioRepository.findByUsername(dto.username()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username já existe: " + dto.username());
         }
+
         if (dto.role() == RoleUsuario.VENDEDOR) {
-            if (dto.vendedorId() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "VENDEDOR deve ter um vendedorId vinculado");
+            if (dto.nome() == null || dto.nome().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Nome é obrigatório para VENDEDOR");
             }
-            vendedorRepository.findById(dto.vendedorId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Vendedor não encontrado para o vendedorId informado: " + dto.vendedorId()));
-        } else if (dto.vendedorId() != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Apenas usuários VENDEDOR podem ter vendedorId");
+            if (dto.matricula() == null || dto.matricula().isBlank()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Matrícula é obrigatória para VENDEDOR");
+            }
+            if (dto.dataAdmissao() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Data de admissão é obrigatória para VENDEDOR");
+            }
+            if (dto.metaMensal() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Meta mensal é obrigatória para VENDEDOR");
+            }
+            if (dto.comissaoBase() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Comissão base é obrigatória para VENDEDOR");
+            }
+            if (dto.rank() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rank é obrigatório para VENDEDOR");
+            }
+            if (vendedorRepository.findByMatricula(dto.matricula()).isPresent()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Matrícula já cadastrada: " + dto.matricula());
+            }
+
+            var vendedor = new Vendedor();
+            vendedor.setNome(dto.nome());
+            vendedor.setMatricula(dto.matricula());
+            vendedor.setDataAdmissao(dto.dataAdmissao());
+            vendedor.setMetaMensal(dto.metaMensal());
+            vendedor.setComissaoBase(dto.comissaoBase());
+            vendedor.setRank(dto.rank());
+            vendedor = vendedorRepository.save(vendedor);
+
+            var usuario = new Usuario();
+            usuario.setUsername(dto.username());
+            usuario.setPassword(passwordEncoder.encode(dto.password()));
+            usuario.setRole(RoleUsuario.VENDEDOR);
+            usuario.setVendedorId(vendedor.getId());
+            usuario = usuarioRepository.save(usuario);
+            return toResponseDTO(usuario);
         }
 
         var usuario = new Usuario();
         usuario.setUsername(dto.username());
         usuario.setPassword(passwordEncoder.encode(dto.password()));
-        usuario.setRole(dto.role());
-        usuario.setVendedorId(dto.vendedorId());
+        usuario.setRole(RoleUsuario.ADMIN);
+        usuario.setVendedorId(null);
         usuario = usuarioRepository.save(usuario);
         return toResponseDTO(usuario);
     }

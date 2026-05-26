@@ -47,7 +47,6 @@ function App() {
               <Route path="/clientes/novo" element={<ClienteFormulario />} />
               <Route path="/clientes/:id/editar" element={<ClienteFormulario />} />
               <Route path="/vendedores" element={<VendedoresListagem />} />
-              <Route path="/vendedores/novo" element={<VendedorFormulario />} />
               <Route path="/vendedores/:id/editar" element={<VendedorFormulario />} />
               <Route path="/vendas" element={<VendasListagem />} />
               <Route path="/vendas/novo" element={<VendaFormulario />} />

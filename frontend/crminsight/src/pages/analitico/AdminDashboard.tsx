@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { ArrowLeft } from 'lucide-react'
 import { listarVendedores } from '../../api/vendedores'
 import { listarClientes } from '../../api/clientes'
 import { taxaConversao, eficienciaVendedor, performanceMeta, especializacao, ticketMedio30d, churnProbabilidade } from '../../api/analitico'
-import type { Analitico } from '../../types'
+import type { Analitico, Vendedor, Cliente } from '../../types'
+
+type Tab = 'vendedor' | 'cliente'
 
 function formatMetric(m: Analitico | undefined): string {
   if (!m || m.valor === 0) return 'Sem dados'
@@ -14,8 +17,8 @@ function formatMetric(m: Analitico | undefined): string {
 }
 
 export default function AdminDashboard() {
-  const [selectedVendedor, setSelectedVendedor] = useState<string>('')
-  const [selectedCliente, setSelectedCliente] = useState<string>('')
+  const [tab, setTab] = useState<Tab>('vendedor')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const { data: vendedores } = useQuery({
     queryKey: ['vendedores'],
@@ -28,40 +31,50 @@ export default function AdminDashboard() {
   })
 
   const { data: txConversao } = useQuery({
-    queryKey: ['analitico', 'taxa-conversao', selectedVendedor],
-    queryFn: () => taxaConversao(selectedVendedor),
-    enabled: !!selectedVendedor,
+    queryKey: ['analitico', 'taxa-conversao', selectedId],
+    queryFn: () => taxaConversao(selectedId!),
+    enabled: tab === 'vendedor' && !!selectedId,
   })
 
   const { data: eficiencia } = useQuery({
-    queryKey: ['analitico', 'eficiencia', selectedVendedor],
-    queryFn: () => eficienciaVendedor(selectedVendedor),
-    enabled: !!selectedVendedor,
+    queryKey: ['analitico', 'eficiencia', selectedId],
+    queryFn: () => eficienciaVendedor(selectedId!),
+    enabled: tab === 'vendedor' && !!selectedId,
   })
 
   const { data: perfMeta } = useQuery({
-    queryKey: ['analitico', 'performance-meta', selectedVendedor],
-    queryFn: () => performanceMeta(selectedVendedor),
-    enabled: !!selectedVendedor,
+    queryKey: ['analitico', 'performance-meta', selectedId],
+    queryFn: () => performanceMeta(selectedId!),
+    enabled: tab === 'vendedor' && !!selectedId,
   })
 
   const { data: espec } = useQuery({
-    queryKey: ['analitico', 'especializacao', selectedVendedor],
-    queryFn: () => especializacao(selectedVendedor),
-    enabled: !!selectedVendedor,
+    queryKey: ['analitico', 'especializacao', selectedId],
+    queryFn: () => especializacao(selectedId!),
+    enabled: tab === 'vendedor' && !!selectedId,
   })
 
   const { data: ticket } = useQuery({
-    queryKey: ['analitico', 'ticket-medio', selectedCliente],
-    queryFn: () => ticketMedio30d(selectedCliente),
-    enabled: !!selectedCliente,
+    queryKey: ['analitico', 'ticket-medio', selectedId],
+    queryFn: () => ticketMedio30d(selectedId!),
+    enabled: tab === 'cliente' && !!selectedId,
   })
 
   const { data: churn } = useQuery({
-    queryKey: ['analitico', 'churn', selectedCliente],
-    queryFn: () => churnProbabilidade(selectedCliente),
-    enabled: !!selectedCliente,
+    queryKey: ['analitico', 'churn', selectedId],
+    queryFn: () => churnProbabilidade(selectedId!),
+    enabled: tab === 'cliente' && !!selectedId,
   })
+
+  const items = tab === 'vendedor' ? vendedores : clientes
+  const selectedNome = tab === 'vendedor'
+    ? (vendedores as Vendedor[] | undefined)?.find(v => v.id === selectedId)?.nome
+    : (clientes as Cliente[] | undefined)?.find(c => c.id === selectedId)?.nome
+
+  function handleTabChange(newTab: Tab) {
+    setTab(newTab)
+    setSelectedId(null)
+  }
 
   const chartData = [
     { name: 'Conversão', valor: txConversao?.valor ?? 0 },
@@ -72,27 +85,60 @@ export default function AdminDashboard() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900 mb-1">Analítico</h1>
-      <p className="text-slate-500 mb-8">Métricas e indicadores do sistema</p>
+      <p className="text-slate-500 mb-6">Métricas e indicadores do sistema</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Seção Vendedor */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Métricas por Vendedor</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Selecione um vendedor</label>
-            <select
-              value={selectedVendedor}
-              onChange={(e) => setSelectedVendedor(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white"
+      {!selectedId && (
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => handleTabChange('vendedor')}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
+              tab === 'vendedor'
+                ? 'bg-slate-900 text-white'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            Vendedor
+          </button>
+          <button
+            onClick={() => handleTabChange('cliente')}
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
+              tab === 'cliente'
+                ? 'bg-slate-900 text-white'
+                : 'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50'
+            }`}
+          >
+            Cliente
+          </button>
+        </div>
+      )}
+
+      {!selectedId ? (
+        <div className="grid grid-cols-2 gap-4">
+          {items?.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setSelectedId(item.id)}
+              className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 text-left cursor-pointer hover:shadow-md hover:border-slate-300 transition-all"
             >
-              <option value="">Selecione...</option>
-              {vendedores?.map((v) => <option key={v.id} value={v.id}>{v.nome}</option>)}
-            </select>
-          </div>
+              <p className="font-medium text-slate-900">{item.nome}</p>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <button
+            onClick={() => setSelectedId(null)}
+            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 mb-4 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar
+          </button>
 
-          {selectedVendedor && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-3">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">{selectedNome}</h2>
+
+          {tab === 'vendedor' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-3 gap-4">
                 <MetricCard label="Taxa Conversão" value={formatMetric(txConversao)} />
                 <MetricCard label="Eficiência" value={formatMetric(eficiencia)} />
                 <MetricCard label="Performance / Meta" value={formatMetric(perfMeta)} />
@@ -111,8 +157,8 @@ export default function AdminDashboard() {
               </div>
 
               {espec && espec.valor > 0 && (
-                <div className="pt-2 border-t border-slate-100">
-                  <p className="text-sm font-medium text-slate-700 mb-2">Especialização</p>
+                <div className="bg-slate-50 rounded-lg p-4">
+                  <p className="text-sm font-medium text-slate-700 mb-1">Especialização</p>
                   <p className="text-sm text-slate-500">
                     Segmento predominante: <strong>{espec.unidade}</strong>
                   </p>
@@ -120,26 +166,10 @@ export default function AdminDashboard() {
               )}
             </div>
           )}
-        </div>
 
-        {/* Seção Cliente */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Métricas por Cliente</h2>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-slate-700 mb-1">Selecione um cliente</label>
-            <select
-              value={selectedCliente}
-              onChange={(e) => setSelectedCliente(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white"
-            >
-              <option value="">Selecione...</option>
-              {clientes?.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-            </select>
-          </div>
-
-          {selectedCliente && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+          {tab === 'cliente' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
                 <MetricCard label="Ticket Médio (30d)" value={formatMetric(ticket)} />
                 <MetricCard label="Risco de Churn" value={formatMetric(churn)} />
               </div>
@@ -174,7 +204,7 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
-      </div>
+      )}
     </div>
   )
 }
