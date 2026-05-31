@@ -1,0 +1,92 @@
+@startuml
+
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  HeaderBackgroundColor White
+  FontColor Black
+}
+
+skinparam enum {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+
+skinparam arrow {
+  Color Black
+}
+
+class Cliente {
+  + id: UUID
+  + nome: String
+  + segmento: String
+  + dataEntrada: LocalDate
+  + score: int
+}
+
+class Vendedor {
+  + id: UUID
+  + nome: String
+  + matricula: String
+  + dataAdmissao: LocalDate
+  + metaMensal: BigDecimal
+  + comissaoBase: BigDecimal
+  + rank: RankVendedor
+}
+
+class Venda {
+  + id: UUID
+  + data: LocalDate
+  + valor: BigDecimal
+  + status: StatusVenda
+  + comissaoPaga: BigDecimal
+}
+
+class Interacao {
+  + id: UUID
+  + dataHora: LocalDateTime
+  + canal: CanalInteracao
+  + duracao: int
+  + avaliacao: int
+}
+
+class Usuario {
+  + id: UUID
+  + username: String
+  + password: String
+  + role: RoleUsuario
+  + vendedorId: UUID
+}
+
+Venda "0..*" --> "1" Cliente
+Venda "0..*" --> "1" Vendedor
+Interacao "0..*" --> "1" Cliente
+Interacao "0..*" --> "1" Vendedor
+Usuario "0..1" --> "1" Vendedor : vendedorId
+
+enum RankVendedor {
+  OURO
+  PRATA
+  BRONZE
+  TREINAMENTO
+}
+
+enum StatusVenda {
+  CONCLUIDA
+  CANCELADA
+  EM_ANALISE
+}
+
+enum CanalInteracao {
+  TELEFONE
+  EMAIL
+  WHATSAPP
+  REUNIAO
+}
+
+enum RoleUsuario {
+  ADMIN
+  VENDEDOR
+}
+@enduml

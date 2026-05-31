@@ -1,0 +1,63 @@
+@startuml
+skinparam usecase {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+
+skinparam actor {
+  BorderColor Black
+  FontColor Black
+}
+
+skinparam arrow {
+  Color Black
+}
+
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+
+left to right direction
+
+actor Administrador as admin
+actor Vendedor as vend
+
+rectangle "CRM Insight" {
+  usecase UC1 as "Autenticar-se"
+  usecase UC2 as "Gerenciar Clientes"
+  usecase UC3 as "Gerenciar Vendedores"
+  usecase UC4 as "Gerenciar Usuários"
+  usecase UC5 as "Gerenciar Vendas"
+  usecase UC6 as "Gerenciar Interações"
+  usecase UC7 as "Visualizar Dashboard\nAdministrativo"
+  usecase UC8 as "Visualizar Analítico"
+  usecase UC9 as "Registrar Venda"
+  usecase UC10 as "Registrar Interação"
+  usecase UC11 as "Visualizar Dashboard\nFinanceiro"
+  usecase UC12 as "Visualizar Meu\nDesempenho"
+  usecase UC13 as "Calcular Score\ndo Cliente"
+  usecase UC14 as "Auto-Preencher\nVendedor Logado"
+}
+
+admin --> UC1
+admin --> UC2
+admin --> UC3
+admin --> UC4
+admin --> UC5
+admin --> UC6
+admin --> UC7
+admin --> UC8
+
+vend --> UC1
+vend --> UC9
+vend --> UC10
+vend --> UC11
+vend --> UC12
+
+UC9 ..> UC13 : <<include>>
+UC9 ..> UC14 : <<include>>
+UC10 ..> UC14 : <<include>>
+@enduml
