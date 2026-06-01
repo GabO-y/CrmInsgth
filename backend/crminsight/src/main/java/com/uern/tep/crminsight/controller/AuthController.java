@@ -45,7 +45,8 @@ public class AuthController {
             usuario.getId(),
             usuario.getUsername(),
             usuario.getRole(),
-            usuario.getVendedorId()
+            usuario.getVendedorId(),
+            usuario.getClienteId()
         );
 
         return ResponseEntity.ok(new LoginResponseDTO(token, usuarioDTO));
