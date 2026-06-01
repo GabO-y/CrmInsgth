@@ -8,5 +8,6 @@ public record UsuarioResponseDTO(
     UUID id,
     String username,
     RoleUsuario role,
-    UUID vendedorId
+    UUID vendedorId,
+    UUID clienteId
 ) {}

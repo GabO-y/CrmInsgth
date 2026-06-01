@@ -34,4 +34,6 @@ public class Usuario {
     private RoleUsuario role;
 
     private UUID vendedorId;
+
+    private UUID clienteId;
 }

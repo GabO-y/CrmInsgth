@@ -18,5 +18,6 @@ public record UsuarioRequestDTO(
     LocalDate dataAdmissao,
     BigDecimal metaMensal,
     BigDecimal comissaoBase,
-    RankVendedor rank
+    RankVendedor rank,
+    String segmento
 ) {}

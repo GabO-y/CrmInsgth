@@ -1,4 +1,4 @@
-export type RoleUsuario = 'ADMIN' | 'VENDEDOR'
+export type RoleUsuario = 'ADMIN' | 'VENDEDOR' | 'CLIENTE'
 
 export type StatusVenda = 'CONCLUIDA' | 'CANCELADA' | 'EM_ANALISE'
 
@@ -11,6 +11,7 @@ export interface Usuario {
   username: string
   role: RoleUsuario
   vendedorId: string | null
+  clienteId: string | null
 }
 
 export interface LoginResponse {
@@ -89,7 +90,8 @@ export interface UsuarioFormData {
   dataAdmissao?: string
   metaMensal?: number
   comissaoBase?: number
-  rank?: RankVendedor
+  rank?: string
+  segmento?: string
 }
 
 export interface VendaFormData {
@@ -208,5 +210,4 @@ export interface UsuarioFormData {
   username: string
   password: string
   role: RoleUsuario
-  vendedorId: string | null
 }

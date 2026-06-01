@@ -5,7 +5,7 @@ import {
   DollarSign, TrendingUp, Award, Target, CheckCircle,
 } from 'lucide-react'
 import { listarVendas } from '../api/vendas'
-import { meuPerformanceMeta } from '../api/analitico'
+import { meuPerformanceMeta, meuTaxaConversao, meuEficienciaVendedor, meuEspecializacao } from '../api/analitico'
 import { resumoGeral } from '../api/resumo'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -238,6 +238,21 @@ function VendedorDashboard({ usuario }: { usuario: { username: string } }) {
     queryFn: meuPerformanceMeta,
   })
 
+  const { data: txConversao } = useQuery({
+    queryKey: ['meu-analitico', 'taxa-conversao'],
+    queryFn: meuTaxaConversao,
+  })
+
+  const { data: eficiencia } = useQuery({
+    queryKey: ['meu-analitico', 'eficiencia'],
+    queryFn: meuEficienciaVendedor,
+  })
+
+  const { data: espec } = useQuery({
+    queryKey: ['meu-analitico', 'especializacao'],
+    queryFn: meuEspecializacao,
+  })
+
   const hoje = new Date()
   const mesAtual = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
 
@@ -298,12 +313,50 @@ function VendedorDashboard({ usuario }: { usuario: { username: string } }) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Meu Desempenho</h2>
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <MetricCard label="Conversão" value={txConversao ? `${txConversao.valor.toFixed(1)}%` : 'Sem dados'} />
+            <MetricCard label="Eficiência" value={eficiencia ? `${eficiencia.valor.toFixed(1)}%` : 'Sem dados'} />
+            <MetricCard label="Meta" value={perfMeta ? `${perfMeta.valor.toFixed(1)}%` : 'Sem dados'} />
+          </div>
+          <div className="h-52">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={[
+                { name: 'Conversão', valor: txConversao?.valor ?? 0 },
+                { name: 'Eficiência', valor: eficiencia?.valor ?? 0 },
+                { name: 'Meta (%)', valor: perfMeta?.valor ?? 0 },
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis domain={[0, 'auto']} />
+                {/* @ts-expect-error recharts Tooltip formatter type mismatch */}
+                <Tooltip formatter={(value: number) => `${Number(value).toFixed(1)}%`} />
+                <Bar dataKey="valor" fill="#0f172a" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {espec && espec.valor > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Especialização</h2>
+            <p className="text-sm text-slate-500 mb-1">Segmento</p>
+            <p className="text-lg font-bold text-slate-900 mb-4">{espec.unidade}</p>
+            <div className="w-full bg-slate-100 rounded-full h-3">
+              <div className="h-3 rounded-full bg-slate-900" style={{ width: `${Math.min(espec.valor, 100)}%` }} />
+            </div>
+            <p className="text-xs text-slate-500 mt-2">{espec.valor.toFixed(1)}% de vendas neste segmento</p>
+          </div>
+        )}
+      </div>
+
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Navegação Rápida</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <QuickLink to="/vendas" label="Minhas Vendas" />
           <QuickLink to="/interacoes" label="Minhas Interações" />
-          <QuickLink to="/analitico/meu" label="Meu Desempenho" />
         </div>
       </div>
     </div>
@@ -334,5 +387,14 @@ function QuickLink({ to, label }: { to: string; label: string }) {
     >
       {label}
     </a>
+  )
+}
+
+function MetricCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 text-center">
+      <p className="text-xs text-slate-500 mb-1">{label}</p>
+      <p className={`text-lg font-bold ${value === 'Sem dados' ? 'text-slate-300' : 'text-slate-900'}`}>{value}</p>
+    </div>
   )
 }

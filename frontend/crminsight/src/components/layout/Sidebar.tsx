@@ -5,7 +5,6 @@ import {
   UserCircle,
   ShoppingCart,
   Phone,
-  BarChart3,
   Shield,
   LogOut,
 } from 'lucide-react'
@@ -17,7 +16,6 @@ const adminLinks = [
   { to: '/vendedores', label: 'Vendedores', icon: UserCircle },
   { to: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { to: '/interacoes', label: 'Interações', icon: Phone },
-  { to: '/analitico', label: 'Analítico', icon: BarChart3 },
   { to: '/usuarios', label: 'Usuários', icon: Shield },
 ]
 
@@ -25,7 +23,6 @@ const vendedorLinks = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/vendas', label: 'Vendas', icon: ShoppingCart },
   { to: '/interacoes', label: 'Interações', icon: Phone },
-  { to: '/analitico/meu', label: 'Meu Desempenho', icon: BarChart3 },
 ]
 
 export default function Sidebar() {

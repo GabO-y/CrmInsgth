@@ -3,6 +3,12 @@ import { listarUsuarios } from '../../api/usuarios'
 import DataTable from '../../components/ui/DataTable'
 import type { Usuario } from '../../types'
 
+const roleColors: Record<string, string> = {
+  ADMIN: 'bg-purple-100 text-purple-800',
+  VENDEDOR: 'bg-blue-100 text-blue-800',
+  CLIENTE: 'bg-green-100 text-green-800',
+}
+
 export default function UsuariosListagem() {
   const { data: usuarios, isLoading } = useQuery({
     queryKey: ['usuarios'],
@@ -15,9 +21,7 @@ export default function UsuariosListagem() {
       key: 'role',
       header: 'Role',
       render: (u: Usuario) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          u.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'
-        }`}>
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${roleColors[u.role] ?? 'bg-slate-100 text-slate-800'}`}>
           {u.role}
         </span>
       ),
@@ -25,7 +29,7 @@ export default function UsuariosListagem() {
     {
       key: 'vendedorId',
       header: 'Vínculo',
-      render: (u: Usuario) => u.vendedorId ? 'Vinculado' : '-',
+      render: (u: Usuario) => u.vendedorId ? 'Vendedor' : u.clienteId ? 'Cliente' : '-',
     },
   ]
 

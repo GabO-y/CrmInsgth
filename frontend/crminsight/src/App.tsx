@@ -13,8 +13,6 @@ import VendasListagem from './pages/vendas/Listagem'
 import VendaFormulario from './pages/vendas/Formulario'
 import InteracoesListagem from './pages/interacoes/Listagem'
 import InteracaoFormulario from './pages/interacoes/Formulario'
-import AdminDashboard from './pages/analitico/AdminDashboard'
-import MeuDesempenho from './pages/analitico/MeuDesempenho'
 import UsuariosListagem from './pages/usuarios/Listagem'
 import UsuarioFormulario from './pages/usuarios/Formulario'
 
@@ -44,7 +42,6 @@ function App() {
             >
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/clientes" element={<PrivateRoute roles={['ADMIN']}><ClientesListagem /></PrivateRoute>} />
-              <Route path="/clientes/novo" element={<PrivateRoute roles={['ADMIN']}><ClienteFormulario /></PrivateRoute>} />
               <Route path="/clientes/:id/editar" element={<PrivateRoute roles={['ADMIN']}><ClienteFormulario /></PrivateRoute>} />
               <Route path="/vendedores" element={<PrivateRoute roles={['ADMIN']}><VendedoresListagem /></PrivateRoute>} />
               <Route path="/vendedores/:id/editar" element={<PrivateRoute roles={['ADMIN']}><VendedorFormulario /></PrivateRoute>} />
@@ -53,22 +50,6 @@ function App() {
               <Route path="/interacoes" element={<InteracoesListagem />} />
               <Route path="/interacoes/novo" element={<InteracaoFormulario />} />
 
-              <Route
-                path="/analitico"
-                element={
-                  <PrivateRoute roles={['ADMIN']}>
-                    <AdminDashboard />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/analitico/meu"
-                element={
-                  <PrivateRoute roles={['VENDEDOR']}>
-                    <MeuDesempenho />
-                  </PrivateRoute>
-                }
-              />
               <Route
                 path="/usuarios"
                 element={

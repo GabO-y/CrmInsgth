@@ -10,13 +10,14 @@ import type { UsuarioFormData, RankVendedor } from '../../types'
 const schema = z.object({
   username: z.string().min(3, 'Mínimo 3 caracteres'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
-  role: z.enum(['ADMIN', 'VENDEDOR'] as const),
+  role: z.enum(['ADMIN', 'VENDEDOR', 'CLIENTE'] as const),
   nome: z.string().optional(),
   matricula: z.string().optional(),
   dataAdmissao: z.string().optional(),
   metaMensal: z.number().optional(),
   comissaoBase: z.number().optional(),
   rank: z.string().optional(),
+  segmento: z.string().optional(),
 })
 
 const ranks: RankVendedor[] = ['OURO', 'PRATA', 'BRONZE', 'TREINAMENTO']
@@ -59,6 +60,12 @@ export default function UsuarioFormulario() {
       if (!data.rank) { setError('rank', { message: 'Rank é obrigatório' }); hasError = true }
       if (hasError) return
     }
+    if (data.role === 'CLIENTE') {
+      let hasError = false
+      if (!data.nome) { setError('nome', { message: 'Nome é obrigatório' }); hasError = true }
+      if (!data.segmento) { setError('segmento', { message: 'Segmento é obrigatório' }); hasError = true }
+      if (hasError) return
+    }
     await mutation.mutateAsync(data)
   }
 
@@ -92,6 +99,7 @@ export default function UsuarioFormulario() {
           <select {...register('role')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent bg-white">
             <option value="ADMIN">Administrador</option>
             <option value="VENDEDOR">Vendedor</option>
+            <option value="CLIENTE">Cliente</option>
           </select>
           {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role.message}</p>}
         </div>
@@ -137,6 +145,25 @@ export default function UsuarioFormulario() {
                 {ranks.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
               {errors.rank && <p className="text-red-500 text-xs mt-1">{errors.rank.message}</p>}
+            </div>
+          </>
+        )}
+
+        {role === 'CLIENTE' && (
+          <>
+            <hr className="border-slate-200" />
+            <p className="text-sm font-medium text-slate-700">Dados do Cliente</p>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Nome</label>
+              <input {...register('nome')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Segmento</label>
+              <input {...register('segmento')} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+              {errors.segmento && <p className="text-red-500 text-xs mt-1">{errors.segmento.message}</p>}
             </div>
           </>
         )}

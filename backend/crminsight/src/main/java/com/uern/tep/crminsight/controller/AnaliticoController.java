@@ -15,7 +15,7 @@ import com.uern.tep.crminsight.service.AnaliticoService;
 
 @RestController
 @RequestMapping("/api/analitico")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'VENDEDOR')")
 public class AnaliticoController {
 
     private final AnaliticoService analiticoService;
