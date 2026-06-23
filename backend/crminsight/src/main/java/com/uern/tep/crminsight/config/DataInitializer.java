@@ -69,6 +69,35 @@ public class DataInitializer implements CommandLineRunner {
         "Educação", "Alimentação", "Logística", "Construção", "Financeiro"
     );
 
+    private static final List<String> PRODUTOS = List.of(
+        "Notebook", "Desktop", "Servidor", "Monitor", "Impressora",
+        "Roteador", "Switch", "Firewall", "Câmera IP", "HD Externo",
+        "SSD", "Memória RAM", "Licença Microsoft 365", "Certificado Digital",
+        "Software de Gestão", "Suporte Técnico", "Consultoria em TI",
+        "Headset", "Webcam", "Teclado Mecânico", "Mouse Gamer",
+        "Tablet", "Smartphone Corporativo", "Cadeira Ergonômica",
+        "Mesa Digitalizadora", "Projetor", "Nobreak", "Estabilizador",
+        "Cabo de Rede", "Patch Panel"
+    );
+
+    private static final List<String> DESCRICOES = List.of(
+        "Modelo empresarial, 16GB RAM, SSD 512GB",
+        "Configuração avançada para servidores corporativos",
+        "Kit com mouse e teclado sem fio inclusos",
+        "Alta durabilidade, garantia de 3 anos",
+        "Suporte a 4 dispositivos simultâneos",
+        "Licenciamento anual renovável",
+        "Instalação e configuração inclusas",
+        "Treinamento da equipe incluso no valor",
+        "Versão premium com suporte prioritário",
+        "Garantia estendida de 12 meses",
+        "Entrega programada em até 10 dias úteis",
+        "Compatível com sistemas legados",
+        "Atualização gratuita para próxima versão",
+        "Personalizado conforme necessidade do cliente",
+        "Homologado pela ANATEL"
+    );
+
     private final UsuarioRepository usuarioRepository;
     private final VendedorRepository vendedorRepository;
     private final ClienteRepository clienteRepository;
@@ -184,7 +213,7 @@ public class DataInitializer implements CommandLineRunner {
             criarVenda(
                 vendedorPonderado(vendedores),
                 ativos.get(random.nextInt(ativos.size())),
-                dataAleatoria(LocalDate.of(2025, 5, 1), LocalDate.of(2026, 5, 31))
+                dataAleatoria(LocalDate.of(2025, 5, 1), LocalDate.now())
             );
         }
 
@@ -210,6 +239,8 @@ public class DataInitializer implements CommandLineRunner {
         v.setValor(valor);
         v.setStatus(status);
         v.setComissaoPaga(status == StatusVenda.CONCLUIDA ? comissaoCalculada(valor, vendedor) : BigDecimal.ZERO);
+        v.setNomeProduto(PRODUTOS.get(random.nextInt(PRODUTOS.size())));
+        v.setDescricao(random.nextBoolean() ? DESCRICOES.get(random.nextInt(DESCRICOES.size())) : null);
         v.setCliente(refCliente);
         v.setVendedor(refVendedor);
         vendaRepository.save(v);
@@ -224,7 +255,7 @@ public class DataInitializer implements CommandLineRunner {
             criarInteracao(
                 vendedorPonderado(vendedores),
                 clientes.get(random.nextInt(clientes.size())),
-                dataHoraAleatoria(LocalDate.of(2025, 6, 1), LocalDate.of(2026, 5, 31))
+                dataHoraAleatoria(LocalDate.of(2025, 6, 1), LocalDate.now())
             );
         }
     }

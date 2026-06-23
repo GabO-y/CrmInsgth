@@ -11,7 +11,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend,
 } from 'recharts'
-import type { Venda, ResumoGeral } from '../types'
+import type { Venda } from '../types'
 
 function formatCurrency(value: number): string {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -52,16 +52,23 @@ const statusLabel: Record<string, string> = {
 
 export default function Dashboard() {
   const { usuario } = useAuth()
-  const isAdmin = usuario?.role === 'ADMIN'
 
-  if (isAdmin) {
-    return <AdminDashboard usuario={usuario} />
+  if (!usuario) {
+    return (
+      <div className="flex items-center justify-center h-64 text-slate-400">
+        Carregando...
+      </div>
+    )
+  }
+
+  if (usuario.role === 'ADMIN') {
+    return <AdminDashboard />
   }
 
   return <VendedorDashboard usuario={usuario} />
 }
 
-function AdminDashboard({ usuario }: { usuario: { username: string } }) {
+function AdminDashboard() {
   const { data, isLoading } = useQuery({
     queryKey: ['resumo-geral'],
     queryFn: resumoGeral,
@@ -115,7 +122,7 @@ function AdminDashboard({ usuario }: { usuario: { username: string } }) {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(value: number) => [formatCurrency(value), 'Faturamento']} />
+                <Tooltip formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Faturamento']} />
                 <Bar dataKey="valor" fill="#0f172a" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -130,7 +137,7 @@ function AdminDashboard({ usuario }: { usuario: { username: string } }) {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
                 <YAxis type="category" dataKey="nome" tick={{ fontSize: 12 }} width={90} />
-                <Tooltip formatter={(value: number) => [formatCurrency(value), 'Total']} />
+                <Tooltip formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Total']} />
                 <Bar dataKey="total" fill="#0f172a" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -162,7 +169,7 @@ function AdminDashboard({ usuario }: { usuario: { username: string } }) {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 overflow-visible">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Status das Vendas</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -180,7 +187,19 @@ function AdminDashboard({ usuario }: { usuario: { username: string } }) {
                     <Cell key={idx} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                    fontSize: '13px',
+                    padding: '8px 12px',
+                  }}
+                  itemStyle={{ color: '#1e293b' }}
+                  labelStyle={{ fontWeight: 600, marginBottom: '2px' }}
+                  formatter={(value, name) => [value, name]}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -215,8 +234,8 @@ function DashboardCard({ icon: Icon, color, label, value }: { icon: React.Compon
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
       <div className="flex items-center gap-3">
-        <div className={`${color} p-2.5 rounded-lg shrink-0`}>
-          <Icon size={20} className="text-white" />
+        <div className={`${color} p-2.5 rounded-lg shrink-0 text-white`}>
+          <Icon size={20} />
         </div>
         <div className="min-w-0">
           <p className="text-xs text-slate-500 truncate">{label}</p>
@@ -306,7 +325,7 @@ function VendedorDashboard({ usuario }: { usuario: { username: string } }) {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-              <Tooltip formatter={(value: number) => [formatCurrency(value), 'Faturamento']} />
+              <Tooltip formatter={(value) => [formatCurrency(Number(value ?? 0)), 'Faturamento']} />
               <Bar dataKey="valor" fill="#0f172a" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -331,8 +350,7 @@ function VendedorDashboard({ usuario }: { usuario: { username: string } }) {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                 <YAxis domain={[0, 'auto']} />
-                {/* @ts-expect-error recharts Tooltip formatter type mismatch */}
-                <Tooltip formatter={(value: number) => `${Number(value).toFixed(1)}%`} />
+                <Tooltip formatter={(value) => `${Number(value ?? 0).toFixed(1)}%`} />
                 <Bar dataKey="valor" fill="#0f172a" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -367,8 +385,8 @@ function VendedorCard({ icon: Icon, color, label, value, highlight }: { icon: Re
   return (
     <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
       <div className="flex items-center gap-4">
-        <div className={`${color} p-3 rounded-lg`}>
-          <Icon size={24} className="text-white" />
+        <div className={`${color} p-3 rounded-lg text-white`}>
+          <Icon size={24} />
         </div>
         <div>
           <p className="text-sm text-slate-500">{label}</p>

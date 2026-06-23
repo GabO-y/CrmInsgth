@@ -1,0 +1,9 @@
+AGENTS.md
+run.sh
+*.pdf
+*.pptx
+.vscode/
+node_modules/
+dist/
+target/
+trabalho/apresentacao/

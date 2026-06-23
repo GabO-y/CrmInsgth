@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { DollarSign, User, ShoppingCart, Percent } from 'lucide-react'
+import { DollarSign, User, ShoppingCart, Percent, Package } from 'lucide-react'
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -94,6 +94,14 @@ export default function VendaDetalhes({ venda, vendas }: Props) {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
+        <div className="flex items-center gap-3">
+          <Package size={16} className="text-slate-400 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-xs text-slate-500">Produto</p>
+            <p className="text-sm font-medium text-slate-900 truncate">{venda.nomeProduto}</p>
+            {venda.descricao && <p className="text-xs text-slate-500 mt-0.5">{venda.descricao}</p>}
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <User size={16} className="text-slate-400 shrink-0" />
           <div className="min-w-0">

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.uern.tep.crminsight.model.enums.StatusVenda;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record VendaRequestDTO(
@@ -14,5 +15,7 @@ public record VendaRequestDTO(
     @NotNull StatusVenda status,
     @NotNull BigDecimal comissaoPaga,
     @NotNull UUID clienteId,
-    @NotNull UUID vendedorId
+    @NotNull UUID vendedorId,
+    @NotBlank String nomeProduto,
+    String descricao
 ) {}

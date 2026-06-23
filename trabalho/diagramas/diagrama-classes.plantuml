@@ -41,6 +41,8 @@ class Venda {
   + valor: BigDecimal
   + status: StatusVenda
   + comissaoPaga: BigDecimal
+  + nomeProduto: String
+  + descricao: String
 }
 
 class Interacao {

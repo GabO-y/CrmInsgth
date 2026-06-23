@@ -173,7 +173,8 @@ export default function VendasListagem() {
                           {v.status === 'CONCLUIDA' ? 'OK' : v.status === 'CANCELADA' ? 'CAN' : 'ANA'}
                         </span>
                       </div>
-                      <span className="text-xs text-slate-400 truncate max-w-[140px] shrink-0">{v.clienteNome}</span>
+                      <span className="text-xs text-slate-400 truncate max-w-[140px] shrink-0" title={v.nomeProduto}>{v.nomeProduto}</span>
+                      <span className="text-xs text-slate-400 truncate max-w-[100px] shrink-0">{v.clienteNome}</span>
                       {isAdmin && (
                         <button
                           onClick={e => { e.stopPropagation(); setDeleteId(v.id) }}

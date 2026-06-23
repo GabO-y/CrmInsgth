@@ -15,6 +15,8 @@ const schema = z.object({
   valor: z.number().positive('Deve ser positivo'),
   status: z.enum(['CONCLUIDA', 'CANCELADA', 'EM_ANALISE'] as const),
   comissaoPaga: z.number().min(0, 'Deve ser >= 0'),
+  nomeProduto: z.string().min(1, 'Nome do produto é obrigatório'),
+  descricao: z.string().optional(),
   clienteId: z.string().min(1, 'Cliente é obrigatório'),
   vendedorId: z.string().min(1, 'Vendedor é obrigatório'),
 })
@@ -98,6 +100,18 @@ export default function VendaFormulario() {
           <label className="block text-sm font-medium text-slate-700 mb-1">Comissão Paga (R$)</label>
           <input type="number" step="0.01" {...register('comissaoPaga', { valueAsNumber: true })} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
           {errors.comissaoPaga && <p className="text-red-500 text-xs mt-1">{errors.comissaoPaga.message}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Produto</label>
+          <input type="text" {...register('nomeProduto')} placeholder="Ex: Notebook Dell" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent" />
+          {errors.nomeProduto && <p className="text-red-500 text-xs mt-1">{errors.nomeProduto.message}</p>}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Descrição <span className="text-slate-400 font-normal">(opcional)</span></label>
+          <textarea {...register('descricao')} rows={3} placeholder="Descreva o que foi vendido..." className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent resize-none" />
+          {errors.descricao && <p className="text-red-500 text-xs mt-1">{errors.descricao.message}</p>}
         </div>
 
         <div>

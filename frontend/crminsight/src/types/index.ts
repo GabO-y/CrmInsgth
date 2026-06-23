@@ -43,6 +43,8 @@ export interface Venda {
   valor: number
   status: StatusVenda
   comissaoPaga: number
+  nomeProduto: string
+  descricao: string | null
   clienteId: string
   clienteNome: string
   vendedorId: string
@@ -95,76 +97,12 @@ export interface UsuarioFormData {
 }
 
 export interface VendaFormData {
-  id: string
   data: string
   valor: number
   status: StatusVenda
   comissaoPaga: number
-  clienteId: string
-  vendedorId: string
-}
-
-export interface InteracaoFormData {
-  id: string
-  dataHora: string
-  canal: CanalInteracao
-  duracao: number
-  avaliacao: number
-  clienteId: string
-  vendedorId: string
-}
-
-
-
-export interface Venda {
-  id: string
-  data: string
-  valor: number
-  status: StatusVenda
-  comissaoPaga: number
-  clienteId: string
-  clienteNome: string
-  vendedorId: string
-  vendedorNome: string
-}
-
-export interface Interacao {
-  id: string
-  dataHora: string
-  canal: CanalInteracao
-  duracao: number
-  avaliacao: number
-  clienteId: string
-  clienteNome: string
-  vendedorId: string
-  vendedorNome: string
-}
-
-export interface Analitico {
-  metrica: string
-  valor: number
-  unidade: string
-}
-
-export interface ClienteFormData {
-  nome: string
-  segmento: string
-}
-
-export interface VendedorFormData {
-  nome: string
-  matricula: string
-  dataAdmissao: string
-  metaMensal: number
-  comissaoBase: number
-  rank: RankVendedor
-}
-
-export interface VendaFormData {
-  data: string
-  valor: number
-  status: StatusVenda
-  comissaoPaga: number
+  nomeProduto: string
+  descricao?: string
   clienteId: string
   vendedorId: string
 }

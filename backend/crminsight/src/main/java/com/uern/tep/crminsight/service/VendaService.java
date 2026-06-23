@@ -74,6 +74,8 @@ public class VendaService {
         venda.setValor(dto.valor());
         venda.setStatus(dto.status());
         venda.setComissaoPaga(dto.comissaoPaga());
+        venda.setNomeProduto(dto.nomeProduto());
+        venda.setDescricao(dto.descricao());
         venda.setCliente(cliente);
         venda.setVendedor(vendedor);
         venda = vendaRepository.save(venda);
@@ -96,6 +98,8 @@ public class VendaService {
             venda.getValor(),
             venda.getStatus(),
             venda.getComissaoPaga(),
+            venda.getNomeProduto(),
+            venda.getDescricao(),
             venda.getCliente().getId(),
             venda.getCliente().getNome(),
             venda.getVendedor().getId(),

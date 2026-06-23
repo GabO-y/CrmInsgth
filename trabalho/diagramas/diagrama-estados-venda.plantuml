@@ -1,0 +1,19 @@
+@startuml
+
+skinparam state {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+
+skinparam arrow {
+  Color Black
+}
+
+[*] --> EM_ANALISE : Venda registrada
+EM_ANALISE --> CONCLUIDA : Venda concluída\ncom sucesso
+EM_ANALISE --> CANCELADA : Venda cancelada
+CONCLUIDA --> [*]
+CANCELADA --> [*]
+
+@enduml

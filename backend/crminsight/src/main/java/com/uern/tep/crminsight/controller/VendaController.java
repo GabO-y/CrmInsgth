@@ -69,7 +69,7 @@ public class VendaController {
     public ResponseEntity<VendaResponseDTO> criar(@RequestBody @Valid VendaRequestDTO dto, Authentication auth) {
         if (isVendedor(auth)) {
             var vendedorLogado = vendedorLogadoId(auth);
-            dto = new VendaRequestDTO(dto.data(), dto.valor(), dto.status(), dto.comissaoPaga(), dto.clienteId(), vendedorLogado);
+            dto = new VendaRequestDTO(dto.data(), dto.valor(), dto.status(), dto.comissaoPaga(), dto.clienteId(), vendedorLogado, dto.nomeProduto(), dto.descricao());
         }
         var response = vendaService.criar(dto);
         return ResponseEntity.created(URI.create("/api/vendas/" + response.id())).body(response);

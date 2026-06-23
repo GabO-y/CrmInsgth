@@ -12,6 +12,8 @@ public record VendaResponseDTO(
     BigDecimal valor,
     StatusVenda status,
     BigDecimal comissaoPaga,
+    String nomeProduto,
+    String descricao,
     UUID clienteId,
     String clienteNome,
     UUID vendedorId,

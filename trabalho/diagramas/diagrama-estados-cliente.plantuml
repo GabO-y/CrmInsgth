@@ -1,0 +1,23 @@
+@startuml
+
+skinparam state {
+  BackgroundColor White
+  BorderColor Black
+  FontColor Black
+}
+
+skinparam arrow {
+  Color Black
+}
+
+[*] --> NOVO : Cadastro (score 50)
+NOVO --> ATIVO : Vendas realizadas
+NOVO --> EM_RISCO : Inatividade
+ATIVO --> EM_RISCO : Sem compras recentes
+EM_RISCO --> RECUPERADO : Nova venda ou interação
+EM_RISCO --> PERDIDO : Churn confirmado
+RECUPERADO --> ATIVO : Retomou atividade
+EM_RISCO --> ATIVO : Reativou
+PERDIDO --> [*]
+
+@enduml

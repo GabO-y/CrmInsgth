@@ -39,6 +39,10 @@ public class Venda {
 
     private BigDecimal comissaoPaga;
 
+    private String nomeProduto;
+
+    private String descricao;
+
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private Cliente cliente;
